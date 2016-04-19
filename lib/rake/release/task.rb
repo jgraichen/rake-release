@@ -56,11 +56,7 @@ module Rake
         task 'release:guard_tag', [:remote] do |_, args|
           out, ret = sh! 'git', 'tag', '--points-at', 'HEAD'
 
-          tags = out.split("\n")
-
-          p tags
-
-          if not tags.include? @spec.version_tag
+          if not out.split("\n").include? @spec.version_tag
             raise "Tag #{@spec.version_tag} does not point to current HEAD. Cannot release wrong code."
           end
         end
