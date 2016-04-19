@@ -5,6 +5,7 @@ Gem::Specification.new do |spec|
   spec.version       = '0.1.0'
   spec.authors       = ['Jan Graichen']
   spec.email         = ['jgraichen@altimos.de']
+  spec.license       = ['MIT']
 
   spec.summary       = %q{Configurable fork of bundlers release tasks.}
   spec.description   = %q{Configurable fork of bundlers release tasks.}
