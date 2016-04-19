@@ -52,7 +52,7 @@ module Rake
       end
 
       def push_host_name
-        @push_host
+        push_host.host.to_s
       end
 
       def pkg_path

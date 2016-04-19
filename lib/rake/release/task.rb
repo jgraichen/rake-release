@@ -24,41 +24,53 @@ module Rake
       protected
 
       def setup
-        desc "Build #{@spec.pkg_file_name}.gem into the pkg directory."
+        desc <<-EOF.strip
+          Build #{@spec.pkg_file_name}.gem into the pkg directory.
+        EOF
         task(:build) { build }
 
-        desc "Build and install #{@spec.pkg_file_name} into system gems."
+        desc <<-EOF.strip
+          Build and install #{@spec.pkg_file_name} into system gems.
+        EOF
         task(install: [:build]) { install }
 
-        desc "Build and install #{@spec.pkg_file_name} into system gems without network access."
+        desc <<-EOF.strip
+          Build and install #{@spec.pkg_file_name} into system gems without network access.
+        EOF
         task('install:local' => [:build]) { install local: true }
 
-        str = ''
-        str << "Create tag #{@spec.version_tag}, "
-        str << "build and push #{@spec.name}-#{@spec.version}.gem to #{@spec.push_host_name}."
-        desc str
-        task(:release, [:remote] => [
-             :build,
-             'release:guard_clean',
-             'release:source_control_push',
-             'release:guard_tag']) do |remote|
-          release remote: remote
+        desc <<-EOF.strip
+          Create and push tag #{@spec.version_tag}, build gem and publish to #{@spec.push_host_name}.
+        EOF
+        task :release, [:remote] => %w(build release:push)
+
+        task 'release:guard:clean' do
+          guard_clean
         end
 
-        task 'release:guard_clean' do
-          clean? && committed? || raise('There are files that need to be committed first.')
+        task 'release:guard:tag' do
+          guard_tag
         end
 
-        task 'release:source_control_push', [:remote] do |_, args|
+        task 'release:push', [:remote] => %w(release:guard:clean) do |_, args|
           tag_version { git_push(args[:remote]) } unless already_tagged?
         end
 
-        task 'release:guard_tag', [:remote] do |_, args|
-          out, ret = sh! 'git', 'tag', '--points-at', 'HEAD'
+        task 'release:publish' => %w(release:guard:tag) do
+          publish if publish?
+        end
+      end
 
-          if not out.split("\n").include? @spec.version_tag
-            raise "Tag #{@spec.version_tag} does not point to current HEAD. Cannot release wrong code."
-          end
+      def guard_clean
+        return if clean? && committed?
+        raise 'There are files that need to be committed first.'
+      end
+
+      def guard_tag
+        out, ret = sh! 'git', 'tag', '--points-at', 'HEAD'
+
+        if not out.split("\n").include? @spec.version_tag
+          raise "Tag #{@spec.version_tag} does not point to current HEAD. Cannot release wrong code."
         end
       end
 
@@ -79,7 +91,7 @@ module Rake
         Release.ui.confirm "#{@spec.name} (#{@spec.version}) installed."
       end
 
-      def release(remote: nil)
+      def publish
         cmd = %w(gem push)
         cmd << @spec.pkg_file_path
         cmd << '--host'
@@ -143,6 +155,10 @@ module Rake
         sh! *cmd, '--tags'
 
         Release.ui.confirm 'Pushed git commits and tags.'
+      end
+
+      def publish?
+        ! %w(n no nil false off 0).include?(ENV["gem_push"].to_s.downcase)
       end
 
       def sh!(*cmd, **kwargs, &block)
