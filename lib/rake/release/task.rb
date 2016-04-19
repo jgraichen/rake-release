@@ -73,7 +73,7 @@ module Rake
         cmd << '--host'
         cmd << @spec.push_host
 
-        p *cmd
+        sh! *cmd
 
         Release.ui.confirm "Pushed #{@spec.name} #{@spec.version} to #{@spec.push_host}"
       end
