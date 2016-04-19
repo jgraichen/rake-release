@@ -37,7 +37,7 @@ module Rake
         str << "Create tag #{@spec.version_tag}, "
         str << "build and push #{@spec.name}-#{@spec.version}.gem to #{@spec.push_host_name}."
         desc str
-        task(:release, [:remote] => ['release:guard_clean', 'release:source_control_push', :build]) do |remote|
+        task(:release, [:remote] => [:build, 'release:guard_clean', 'release:source_control_push']) do |remote|
           release remote: remote
         end
 
