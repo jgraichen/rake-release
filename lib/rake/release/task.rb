@@ -42,7 +42,7 @@ module Rake
         desc <<-EOF.strip
           Create and push tag #{@spec.version_tag}, build gem and publish to #{@spec.push_host_name}.
         EOF
-        task :release, [:remote] => %w(build release:push)
+        task :release, [:remote] => %w(build release:push release:publish)
 
         task 'release:guard:clean' do
           guard_clean
@@ -99,7 +99,7 @@ module Rake
 
         sh! *cmd
 
-        Release.ui.confirm "Pushed #{@spec.name} #{@spec.version} to #{@spec.push_host}"
+        Release.ui.confirm "Pushed #{@spec.pkg_file_name} to #{@spec.push_host}"
       end
 
       def git_clean
