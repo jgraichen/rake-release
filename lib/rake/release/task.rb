@@ -121,8 +121,14 @@ module Rake
       end
 
       def git_push(remote)
-        sh! 'git', 'push', remote
-        sh! 'git', 'push', remote, '--tags'
+        cmd = %w(git push)
+
+        if not remote.to_s.empty?
+          cmd << remote
+        end
+
+        sh! *cmd
+        sh! *cmd, '--tags'
 
         Release.ui.confirm 'Pushed git commits and tags.'
       end
