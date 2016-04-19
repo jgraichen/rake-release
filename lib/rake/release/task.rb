@@ -37,7 +37,11 @@ module Rake
         str << "Create tag #{@spec.version_tag}, "
         str << "build and push #{@spec.name}-#{@spec.version}.gem to #{@spec.push_host_name}."
         desc str
-        task(:release, [:remote] => [:build, 'release:guard_clean', 'release:source_control_push']) do |remote|
+        task(:release, [:remote] => [
+             :build,
+             'release:guard_clean',
+             'release:source_control_push',
+             'release:guard_tag']) do |remote|
           release remote: remote
         end
 
@@ -47,6 +51,18 @@ module Rake
 
         task 'release:source_control_push', [:remote] do |_, args|
           tag_version { git_push(args[:remote]) } unless already_tagged?
+        end
+
+        task 'release:guard_tag', [:remote] do |_, args|
+          out, ret = sh! 'git', 'tag', '--points-at', 'HEAD'
+
+          tags = out.split("\n")
+
+          p tags
+
+          if not tags.include? @spec.version_tag
+            raise "Tag #{@spec.version_tag} does not point to current HEAD. Cannot release wrong code."
+          end
         end
       end
 
