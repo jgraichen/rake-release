@@ -133,7 +133,7 @@ module Rake
       end
 
       def git_push(remote)
-        cmd = %w(git push)
+        cmd = %w(git push --quiet)
 
         if not remote.to_s.empty?
           cmd << remote
