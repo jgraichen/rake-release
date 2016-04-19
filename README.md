@@ -1,36 +1,41 @@
 # Rake::Release
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/rake/release`. To experiment with that code, run `bin/console` for an interactive prompt.
+Customized fork for bundlers gem task helpers.
 
-TODO: Delete this and the text above, and describe your gem
+Automatically detects multiple gemspecs and protect from releasing code not matching git version tag.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your Gemfile:
 
 ```ruby
 gem 'rake-release'
 ```
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install rake-release
-
 ## Usage
 
-TODO: Write usage instructions here
+Simply require in Rakefile:
 
-## Development
+```ruby
+require 'rake/release'
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Check with `rake -D`:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```
+rake build
+    Build rake-release-0.2.1.gem.gem into the pkg directory.
 
-## Contributing
+rake install
+    Build and install rake-release-0.2.1.gem into system gems.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/rake-release.
+rake install:local
+    Build and install rake-release-0.2.1.gem into system gems without network access.
 
+rake release[remote]
+    Create and push tag v0.2.1, build gem and publish to rubygems.org.
+```
+
+# License
+
+MIT
