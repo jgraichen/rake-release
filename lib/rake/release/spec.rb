@@ -15,25 +15,24 @@ module Rake
       attr_reader :gemspec
       attr_reader :gemspec_path
 
-      def initialize(base: nil, gemspec: nil)
-        if gemspec
-          @gemspec_path = Pathname.new gemspec
+      attr_accessor :namespace
 
-          if base
-            @base = Pathname.new base
-          else
-            @base = @gemspec_path.parent
-          end
-        else
-          @base = Rake::Release.pwd.join(base.to_s).expand_path
+      def initialize(path, namespace: nil)
+        path = Release.pwd.join(path.to_s).expand_path
 
-          gemspecs = Dir[File.join(@base, "{,*}.gemspec")]
+        if path.directory?
+          @base = path
+
+          gemspecs = Dir[@base.join('*.gemspec')]
 
           if gemspecs.size != 1
             raise 'Unable to determine gemspec file.'
           end
 
           @gemspec_path = Pathname.new gemspecs.first
+        else
+          @base = path.parent
+          @gemspec_path = path
         end
 
         @gemspec = Bundler.load_gemspec @gemspec_path
@@ -76,6 +75,13 @@ module Rake
           new(*args, &block)
         rescue
           nil
+        end
+
+        def scan(path = Release.pwd.join('*.gemspec'))
+          Pathname
+            .glob(path)
+            .map {|path| Rake::Release::Spec.load path }
+            .reject {|spec| spec.nil? }
         end
       end
     end

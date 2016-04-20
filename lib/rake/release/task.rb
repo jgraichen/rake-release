@@ -11,8 +11,10 @@ module Rake
     class Task
       include Rake::DSL
 
-      def initialize(spec = nil, namespace: nil, **kwargs, &block)
+      def initialize(spec = nil, **kwargs, &block)
         @spec = spec || Rake::Release::Spec.new(**kwargs, &block)
+
+        namespace = @spec.namespace || kwargs[:namespace]
 
         if namespace
           send(:namespace, namespace) { setup }
@@ -187,6 +189,18 @@ module Rake
           status = t.value
 
           [out.read, status.exitstatus]
+        end
+      end
+
+      class << self
+        def load_all(dir = Release.pwd)
+          specs = Spec.scan dir
+
+          if block_given?
+            specs.each(&Proc.new)
+          end
+
+          specs.each {|spec| Task.new spec }
         end
       end
     end

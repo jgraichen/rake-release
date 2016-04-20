@@ -16,17 +16,14 @@ module Rake
       end
 
       def autodetect!
-        gemspecs = Pathname.glob pwd.join '{*/*/,*/,}*.gemspec'
+        specs = Spec.scan pwd.join '{*/*/,*/,}*.gemspec'
+        specs.uniq! {|spec| spec.name }
 
-        if gemspecs.size == 1
-          Rake::Release::Task.new gemspec: gemspecs.first
+        if specs.size == 1
+          Task.new specs.first
         else
-          gemspecs
-          .map {|path| Rake::Release::Spec.load gemspec: path }
-          .reject {|spec| spec.nil? }
-          .uniq {|spec| spec.name }
-          .each do |spec|
-            Rake::Release::Task.new spec, namespace: spec.name
+          specs.each do |spec|
+            Task.new spec, namespace: spec.name
           end
         end
       end
