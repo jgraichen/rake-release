@@ -1,6 +1,8 @@
 require 'forwardable'
 require 'uri'
 
+require 'rake/release'
+
 module Rake
   module Release
     class Spec

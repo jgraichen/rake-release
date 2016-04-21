@@ -5,6 +5,7 @@ require 'bundler'
 require 'pathname'
 require 'fileutils'
 
+require 'rake/release'
 require 'rake/release/spec'
 
 module Rake
