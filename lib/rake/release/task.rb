@@ -3,6 +3,7 @@ require 'bundler/vendored_thor' unless defined?(Thor)
 require 'open3'
 require 'bundler'
 require 'pathname'
+require 'fileutils'
 
 require 'rake/release/spec'
 
@@ -79,7 +80,10 @@ module Rake
       def build
         @spec.pkg_path.mkpath
 
-        sh! 'gem', 'build', '-V', @spec.gemspec_path, chdir: @spec.pkg_path
+        sh! 'gem', 'build', '-V', @spec.gemspec_path
+
+        @spec.pkg_path.mkpath
+        FileUtils.mv @spec.pkg_file_name, @spec.pkg_path.join(@spec.pkg_file_name)
 
         Release.ui.confirm "#{@spec.name} #{@spec.version} built to #{@spec.pkg_path}."
       end
