@@ -85,7 +85,7 @@ module Rake
         @spec.pkg_path.mkpath
         FileUtils.mv @spec.pkg_file_name, @spec.pkg_path.join(@spec.pkg_file_name)
 
-        Release.ui.confirm "#{@spec.name} #{@spec.version} built to #{@spec.pkg_path}."
+        Task.ui.confirm "#{@spec.name} #{@spec.version} built to #{@spec.pkg_path}."
       end
 
       def install(local: false)
@@ -94,7 +94,7 @@ module Rake
 
         sh! *cmd
 
-        Release.ui.confirm "#{@spec.name} (#{@spec.version}) installed."
+        Task.ui.confirm "#{@spec.name} (#{@spec.version}) installed."
       end
 
       def publish
@@ -105,7 +105,7 @@ module Rake
 
         sh! *cmd
 
-        Release.ui.confirm "Pushed #{@spec.pkg_file_name} to #{@spec.push_host}"
+        Task.ui.confirm "Pushed #{@spec.pkg_file_name} to #{@spec.push_host}"
       end
 
       def git_clean
@@ -127,11 +127,11 @@ module Rake
       def tag_version
         sh! 'git', 'tag', '-a', '-m', "Version #{@spec.version}", @spec.version_tag
 
-        Release.ui.confirm "Tagged #{@spec.version_tag}."
+        Task.ui.confirm "Tagged #{@spec.version_tag}."
 
         yield if block_given?
       rescue
-        Release.ui.error "Untagging #{@spec.version_tag} due to error."
+        Task.ui.error "Untagging #{@spec.version_tag} due to error."
 
         sh! 'git', 'tag', '-d', @spec.version_tag
 
@@ -145,7 +145,7 @@ module Rake
           return false
         end
 
-        Release.ui.confirm "Tag #{@spec.version_tag} has already been created."
+        Task.ui.confirm "Tag #{@spec.version_tag} has already been created."
 
         true
       end
@@ -160,7 +160,7 @@ module Rake
         sh! *cmd
         sh! *cmd, '--tags'
 
-        Release.ui.confirm 'Pushed git commits and tags.'
+        Task.ui.confirm 'Pushed git commits and tags.'
       end
 
       def publish?
@@ -185,7 +185,7 @@ module Rake
       def sh(*cmd, chdir: @spec.base, raise_error: true, &block)
         cmd = cmd.flatten.map(&:to_s)
 
-        Release.ui.debug cmd
+        Task.ui.debug cmd
 
         Open3.popen2(*cmd, chdir: chdir) do |stdin, out, t|
           stdin.close
