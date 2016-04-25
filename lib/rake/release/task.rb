@@ -5,7 +5,6 @@ require 'bundler'
 require 'pathname'
 require 'fileutils'
 
-require 'rake/release'
 require 'rake/release/spec'
 
 module Rake
@@ -16,7 +15,7 @@ module Rake
       def initialize(spec = nil, **kwargs, &block)
         @spec = spec || Rake::Release::Spec.new(**kwargs, &block)
 
-        namespace = @spec.namespace || kwargs[:namespace]
+        namespace = kwargs[:namespace] || @spec.namespace
 
         if namespace
           send(:namespace, namespace) { setup }
@@ -198,14 +197,30 @@ module Rake
       end
 
       class << self
-        def load_all(dir = Release.pwd)
-          specs = Spec.scan dir
+        def load_all(dir = self.pwd)
+          specs = Spec.scan dir.join('**/*.gemspec')
+
+          if specs.size > 1
+            specs.each {|spec| spec.namespace = spec.name }
+          end
 
           if block_given?
             specs.each(&Proc.new)
           end
 
+          if specs.uniq {|s| s.namespace.to_s.strip }.size != specs.size
+            raise RuntimeError.new 'Non distinct release task namespaces'
+          end
+
           specs.each {|spec| Task.new spec }
+        end
+
+        def pwd
+          @pwd ||= Pathname.new Bundler::SharedHelpers.pwd
+        end
+
+        def ui
+          @ui ||= Bundler::UI::Shell.new
         end
       end
     end

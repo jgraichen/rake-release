@@ -1,8 +1,6 @@
 require 'forwardable'
 require 'uri'
 
-require 'rake/release'
-
 module Rake
   module Release
     class Spec
@@ -18,9 +16,10 @@ module Rake
       attr_reader :gemspec_path
 
       attr_accessor :namespace
+      attr_accessor :push_host
 
       def initialize(path, namespace: nil)
-        path = Release.pwd.join(path.to_s).expand_path
+        path = Task.pwd.join(path.to_s).expand_path
 
         if path.directory?
           @base = path
@@ -40,17 +39,20 @@ module Rake
         @gemspec = Bundler.load_gemspec @gemspec_path
 
         raise RuntimeError.new 'Cannot load gemspec' unless @gemspec
-      end
 
-      def push_host
-        @push_host ||= begin
-          if @gemspec.metadata['allowed_push_host'].to_s.empty?
-            @push_host = URI 'https://rubygems.org'
-          else
-            @push_host = URI @gemspec.metadata['allowed_push_host']
-          end
+        @push_host = URI 'https://rubygems.org'
+
+        unless @gemspec.metadata['allowed_push_host'].to_s.empty?
+          @push_host = URI @gemspec.metadata['allowed_push_host']
         end
       end
+
+      def push_host=(value)
+        @push_host = URI value
+      end
+
+      alias_method :host, :push_host
+      alias_method :host=, :push_host=
 
       def push_host_name
         push_host.host.to_s
@@ -75,11 +77,11 @@ module Rake
       class << self
         def load(*args, &block)
           new(*args, &block)
-        rescue
+        rescue RuntimeError
           nil
         end
 
-        def scan(path = Release.pwd.join('*.gemspec'))
+        def scan(path = Task.pwd.join('*.gemspec'))
           Pathname
             .glob(path)
             .map {|path| Rake::Release::Spec.load path }
