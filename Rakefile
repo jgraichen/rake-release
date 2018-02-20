@@ -1,1 +1,8 @@
-require 'rake/release'
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require 'rake/release/task'
+
+Rake::Release::Task.new do |spec|
+  spec.sign_tag = true
+end

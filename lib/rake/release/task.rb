@@ -13,12 +13,10 @@ module Rake
       include Rake::DSL
 
       def initialize(spec = nil, **kwargs, &block)
-        @spec = spec || Rake::Release::Spec.new(**kwargs, &block)
+        @spec = spec || Rake::Release::Spec.new(spec, **kwargs, &block)
 
-        namespace = kwargs[:namespace] || @spec.namespace
-
-        if namespace
-          send(:namespace, namespace) { setup }
+        if @spec.namespace
+          send(:namespace, @spec.namespace) { setup }
         else
           setup
         end
@@ -37,10 +35,14 @@ module Rake
              'system gems without network access.'
         task('install:local' => [:build]) { install local: true }
 
-        desc <<-EOF.strip
-          Create and push tag #{@spec.version_tag}, build gem and publish to #{@spec.push_host_name}.
-        EOF
-        task :release, [:remote] => %w(build release:push release:publish)
+        if @spec.sign_tag
+          desc "Create, sign and push tag #{@spec.version_tag}, " \
+               "build gem and publish to #{@spec.push_host_name}."
+        else
+          desc "Create and push tag #{@spec.version_tag}, " \
+               "build gem and publish to #{@spec.push_host_name}."
+        end
+        task :release, [:remote] => %w[build release:push release:publish]
 
         task 'release:guard:clean' do
           guard_clean
@@ -122,7 +124,12 @@ module Rake
       end
 
       def tag_version
-        sh! 'git', 'tag', '-a', '-m', "Version #{@spec.version}", @spec.version_tag
+        cmd = %w[git tag --annotate]
+        cmd << '--sign' if @spec.sign_tag
+        cmd << '--message' << "Version #{@spec.version}"
+        cmd << @spec.version_tag
+
+        sh!(*cmd)
 
         Task.ui.confirm "Tagged #{@spec.version_tag}."
 

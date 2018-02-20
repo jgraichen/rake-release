@@ -15,10 +15,11 @@ module Rake
       attr_reader :gemspec
       attr_reader :gemspec_path
 
-      attr_accessor :namespace
       attr_accessor :push_host
+      attr_accessor :sign_tag
+      attr_accessor :namespace
 
-      def initialize(path, namespace: nil)
+      def initialize(path = nil, namespace: nil, sign_tag: false)
         path = Task.pwd.join(path.to_s).expand_path
 
         if path.directory?
@@ -43,6 +44,11 @@ module Rake
         unless @gemspec.metadata['allowed_push_host'].to_s.empty?
           @push_host = URI @gemspec.metadata['allowed_push_host']
         end
+
+        @sign_tag = sign_tag
+        @namespace = namespace
+
+        yield self if block_given?
       end
 
       def push_host=(value)
