@@ -90,6 +90,18 @@ rake client:install:local    # Build and install rake-release-0.6.0.gem into sys
 rake client:release[remote]  # Create and push tag v0.6.0, build gem and publish to rubygems.org
 ```
 
+### Set gem host and version tag
+
+You can customize the task e.g. with a custom git tag or gem push host:
+
+```ruby
+Rake::Release::Task.load_all do |spec|
+  spec.version_tag = "gem-v#{spec.version}"
+  spec.host = 'https://user:pass@gemhost/'
+end
+
+```
+
 # License
 
 MIT
