@@ -27,19 +27,14 @@ module Rake
       protected
 
       def setup
-        desc <<-EOF.strip
-          Build #{@spec.pkg_file_name}.gem into the pkg directory.
-        EOF
+        desc "Build #{@spec.pkg_file_name}.gem into the pkg directory."
         task(:build) { build }
 
-        desc <<-EOF.strip
-          Build and install #{@spec.pkg_file_name} into system gems.
-        EOF
+        desc "Build and install #{@spec.pkg_file_name} into system gems."
         task(install: [:build]) { install }
 
-        desc <<-EOF.strip
-          Build and install #{@spec.pkg_file_name} into system gems without network access.
-        EOF
+        desc "Build and install #{@spec.pkg_file_name} into " \
+             'system gems without network access.'
         task('install:local' => [:build]) { install local: true }
 
         desc <<-EOF.strip
@@ -55,11 +50,11 @@ module Rake
           guard_tag
         end
 
-        task 'release:push', [:remote] => %w(release:guard:clean) do |_, args|
+        task 'release:push', [:remote] => %w[release:guard:clean] do |_, args|
           tag_version { git_push(args[:remote]) } unless already_tagged?
         end
 
-        task 'release:publish' => %w(release:guard:tag) do
+        task 'release:publish' => %w[release:guard:tag] do
           publish if publish?
         end
       end
@@ -70,11 +65,12 @@ module Rake
       end
 
       def guard_tag
-        out, ret = sh! 'git', 'tag', '--points-at', 'HEAD'
+        out, = sh! 'git', 'tag', '--points-at', 'HEAD'
 
-        if not out.split("\n").include? @spec.version_tag
-          raise "Tag #{@spec.version_tag} does not point to current HEAD. Cannot release wrong code."
-        end
+        return if out.split("\n").include? @spec.version_tag
+
+        raise "Tag #{@spec.version_tag} does not point to current HEAD. " \
+              'Cannot release wrong code.'
       end
 
       def build
@@ -83,45 +79,46 @@ module Rake
         sh! 'gem', 'build', '-V', @spec.gemspec_path
 
         @spec.pkg_path.mkpath
-        FileUtils.mv @spec.pkg_file_name, @spec.pkg_path.join(@spec.pkg_file_name)
+        FileUtils.mv @spec.pkg_file_name,
+                     @spec.pkg_path.join(@spec.pkg_file_name)
 
-        Task.ui.confirm "#{@spec.name} #{@spec.version} built to #{@spec.pkg_path}."
+        Task.ui.confirm \
+          "#{@spec.name} #{@spec.version} built to #{@spec.pkg_path}."
       end
 
       def install(local: false)
-        cmd = %w(gem install) + [@spec.pkg_file_path]
+        cmd = %w[gem install] + [@spec.pkg_file_path]
         cmd << '--local' if local
 
-        sh! *cmd
+        sh!(*cmd)
 
         Task.ui.confirm "#{@spec.name} (#{@spec.version}) installed."
       end
 
       def publish
-        cmd = %w(gem push)
-        cmd << @spec.pkg_file_path
-        cmd << '--host'
-        cmd << @spec.push_host
+        cmd = %w[gem push]
+        cmd << @spec.pkg_file_path << '--host' << @spec.push_host
 
-        sh! *cmd
+        sh!(*cmd)
 
         Task.ui.confirm "Pushed #{@spec.pkg_file_name} to #{@spec.push_host}"
       end
 
       def git_clean
-        clean? && committed? || raise("There are files that need to be committed first.")
+        clean? && committed? ||
+          raise('There are files that need to be committed first.')
       end
 
       def clean?
-        out, ret = sh 'git', 'diff', '--exit-code'
+        _, ret = sh 'git', 'diff', '--exit-code'
 
-        ret == 0
+        ret.zero?
       end
 
       def committed?
-        out, ret = sh 'git', 'diff-index', '--quiet', '--cached', 'HEAD'
+        _, ret = sh 'git', 'diff-index', '--quiet', '--cached', 'HEAD'
 
-        ret == 0
+        ret.zero?
       end
 
       def tag_version
@@ -130,7 +127,7 @@ module Rake
         Task.ui.confirm "Tagged #{@spec.version_tag}."
 
         yield if block_given?
-      rescue
+      rescue StandardError
         Task.ui.error "Untagging #{@spec.version_tag} due to error."
 
         sh! 'git', 'tag', '-d', @spec.version_tag
@@ -139,11 +136,9 @@ module Rake
       end
 
       def already_tagged?
-        out, ret = sh 'git', 'tag'
+        out, = sh 'git', 'tag'
 
-        unless out.split(/\n/).include? @spec.version_tag
-          return false
-        end
+        return false unless out.split(/\n/).include? @spec.version_tag
 
         Task.ui.confirm "Tag #{@spec.version_tag} has already been created."
 
@@ -151,20 +146,18 @@ module Rake
       end
 
       def git_push(remote)
-        cmd = %w(git push --quiet)
+        cmd = %w[git push --quiet]
 
-        if not remote.to_s.empty?
-          cmd << remote
-        end
+        cmd << remote unless remote.to_s.empty?
 
-        sh! *cmd
-        sh! *cmd, '--tags'
+        sh!(*cmd)
+        sh!(*cmd, '--tags')
 
         Task.ui.confirm 'Pushed git commits and tags.'
       end
 
       def publish?
-        ! %w(n no nil false off 0).include?(ENV["gem_push"].to_s.downcase)
+        !%w[n no nil false off 0].include?(ENV['gem_push'].to_s.downcase)
       end
 
       def sh!(*cmd, **kwargs, &block)
@@ -173,7 +166,7 @@ module Rake
         out, ret = sh(*cmd, **kwargs, &block)
 
         if ret != 0
-          raise RuntimeError.new <<-EOS.gsub /^\s*\.?/, ''
+          raise <<-EOS.gsub(/^\s*\.?/, '')
             Running `#{cmd}` failed, exit code: #{ret}
             .#{out.gsub(/\n/, "\n  ")}
           EOS
@@ -182,7 +175,7 @@ module Rake
         [out, ret]
       end
 
-      def sh(*cmd, chdir: @spec.base, raise_error: true, &block)
+      def sh(*cmd, chdir: @spec.base)
         cmd = cmd.flatten.map(&:to_s)
 
         Task.ui.debug cmd
@@ -197,22 +190,20 @@ module Rake
       end
 
       class << self
-        def load_all(dir = self.pwd)
+        def load_all(dir = pwd)
           specs = Spec.scan dir.join('**/*.gemspec')
 
           if specs.size > 1
-            specs.each {|spec| spec.namespace = spec.name }
+            specs.each { |spec| spec.namespace = spec.name }
           end
 
-          if block_given?
-            specs.each(&Proc.new)
+          specs.each(&Proc.new) if block_given?
+
+          if specs.uniq { |s| s.namespace.to_s.strip }.size != specs.size
+            raise 'Non distinct release task namespaces'
           end
 
-          if specs.uniq {|s| s.namespace.to_s.strip }.size != specs.size
-            raise RuntimeError.new 'Non distinct release task namespaces'
-          end
-
-          specs.each {|spec| Task.new spec }
+          specs.each { |spec| Task.new spec }
         end
 
         def pwd

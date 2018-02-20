@@ -26,9 +26,7 @@ module Rake
 
           gemspecs = Dir[@base.join('*.gemspec')]
 
-          if gemspecs.size != 1
-            raise 'Unable to determine gemspec file.'
-          end
+          raise 'Unable to determine gemspec file.' if gemspecs.size != 1
 
           @gemspec_path = Pathname.new gemspecs.first
         else
@@ -38,7 +36,7 @@ module Rake
 
         @gemspec = Bundler.load_gemspec @gemspec_path
 
-        raise RuntimeError.new 'Cannot load gemspec' unless @gemspec
+        raise 'Cannot load gemspec' unless @gemspec
 
         @push_host = URI 'https://rubygems.org'
 
@@ -51,8 +49,8 @@ module Rake
         @push_host = URI value
       end
 
-      alias_method :host, :push_host
-      alias_method :host=, :push_host=
+      alias host push_host
+      alias host= push_host=
 
       def push_host_name
         push_host.host.to_s
@@ -84,8 +82,8 @@ module Rake
         def scan(path = Task.pwd.join('*.gemspec'))
           Pathname
             .glob(path)
-            .map {|path| Rake::Release::Spec.load path }
-            .reject {|spec| spec.nil? }
+            .map { |m| Rake::Release::Spec.load(m) }
+            .reject(&:nil?)
         end
       end
     end

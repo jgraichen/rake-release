@@ -9,7 +9,7 @@ module Rake
     class << self
       def autodetect!
         specs = Spec.scan Task.pwd.join '{*/*/,*/,}*.gemspec'
-        specs.uniq! {|spec| spec.name }
+        specs.uniq!(&:name)
 
         if specs.size == 1
           Rake::Release::Task.new specs.first
