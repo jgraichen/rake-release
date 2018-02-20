@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'rake-release'
-  spec.version       = '1.0.0'
+  spec.version       = '1.0.1'
   spec.authors       = ['Jan Graichen']
   spec.email         = ['jgraichen@altimos.de']
   spec.licenses      = ['MIT']

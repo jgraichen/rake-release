@@ -18,6 +18,7 @@ module Rake
       attr_accessor :push_host
       attr_accessor :sign_tag
       attr_accessor :namespace
+      attr_accessor :version_tag
 
       def initialize(path = nil, namespace: nil, sign_tag: false)
         path = Task.pwd.join(path.to_s).expand_path
@@ -47,6 +48,7 @@ module Rake
 
         @sign_tag = sign_tag
         @namespace = namespace
+        @version_tag = "v#{version}"
 
         yield self if block_given?
       end
@@ -72,10 +74,6 @@ module Rake
 
       def pkg_file_path
         @pkg_file_path ||= pkg_path.join pkg_file_name
-      end
-
-      def version_tag
-        "v#{version}"
       end
 
       class << self
