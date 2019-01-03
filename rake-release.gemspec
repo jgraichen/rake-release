@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = 'rake-release'
-  spec.version       = '1.0.1'
+  spec.version       = '1.1.0'
   spec.authors       = ['Jan Graichen']
   spec.email         = ['jgraichen@altimos.de']
   spec.licenses      = ['MIT']
@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = %w[lib]
 
-  spec.add_dependency 'bundler', '~> 1.11'
+  spec.add_dependency 'bundler', '>= 1.11', '< 3'
 
-  spec.add_development_dependency 'bundler', '~> 1.11'
+  spec.add_development_dependency 'bundler', '>= 1.11', '< 3'
 end
