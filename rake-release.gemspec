@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = 'rake-release'
-  spec.version       = '1.1.0'
+  spec.version       = '1.2.0'
   spec.authors       = ['Jan Graichen']
   spec.email         = ['jgraichen@altimos.de']
   spec.licenses      = ['MIT']
