@@ -107,7 +107,7 @@ module Rake
         pid = ::Kernel.spawn(*cmd.flatten.map(&:to_s))
         _, status = ::Process.wait2(pid)
 
-        ::Kernel.exit(1) unless status.zero?
+        ::Kernel.exit(1) unless status.success?
 
         Task.ui.confirm "Pushed #{@spec.pkg_file_name} to #{@spec.push_host}"
       end
