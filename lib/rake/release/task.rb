@@ -101,7 +101,12 @@ module Rake
         cmd = %w[gem push]
         cmd << @spec.pkg_file_path << '--host' << @spec.push_host
 
-        sh!(*cmd)
+        pid = ::Kernel.spawn(*cmd.flatten.map(&:to_s))
+        _, status = ::Process.wait2(pid)
+
+        if status != 0
+          ::Kernel.exit 1
+        end
 
         Task.ui.confirm "Pushed #{@spec.pkg_file_name} to #{@spec.push_host}"
       end
