@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'forwardable'
 require 'uri'
 
@@ -6,7 +8,7 @@ module Rake
     class Spec
       extend Forwardable
 
-      EMPTY_STR = ''.freeze
+      EMPTY_STR = ''
 
       delegate name: :@gemspec
       delegate version: :@gemspec
@@ -14,8 +16,8 @@ module Rake
       attr_reader :base
       attr_reader :gemspec
       attr_reader :gemspec_path
+      attr_reader :push_host
 
-      attr_accessor :push_host
       attr_accessor :sign_tag
       attr_accessor :namespace
       attr_accessor :version_tag
@@ -86,7 +88,7 @@ module Rake
         def scan(path = Task.pwd.join('*.gemspec'))
           Pathname
             .glob(path)
-            .map { |m| Rake::Release::Spec.load(m) }
+            .map {|m| Rake::Release::Spec.load(m) }
             .reject(&:nil?)
         end
       end

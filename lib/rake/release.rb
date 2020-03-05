@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake/release/spec'
 require 'rake/release/task'
 

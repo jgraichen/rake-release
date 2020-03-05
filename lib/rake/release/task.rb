@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/vendored_thor' unless defined?(Thor)
 
 require 'open3'
@@ -63,6 +65,7 @@ module Rake
 
       def guard_clean
         return if clean? && committed?
+
         raise 'There are files that need to be committed first.'
       end
 
@@ -72,7 +75,7 @@ module Rake
         return if out.split("\n").include? @spec.version_tag
 
         raise "Tag #{@spec.version_tag} does not point to current HEAD. " \
-              'Cannot release wrong code.'
+              'Will no release wrong code.'
       end
 
       def build
@@ -82,7 +85,7 @@ module Rake
 
         @spec.pkg_path.mkpath
         FileUtils.mv @spec.pkg_file_name,
-                     @spec.pkg_path.join(@spec.pkg_file_name)
+          @spec.pkg_path.join(@spec.pkg_file_name)
 
         Task.ui.confirm \
           "#{@spec.name} #{@spec.version} built to #{@spec.pkg_path}."
@@ -104,9 +107,7 @@ module Rake
         pid = ::Kernel.spawn(*cmd.flatten.map(&:to_s))
         _, status = ::Process.wait2(pid)
 
-        if status != 0
-          ::Kernel.exit 1
-        end
+        ::Kernel.exit(1) unless status.zero?
 
         Task.ui.confirm "Pushed #{@spec.pkg_file_name} to #{@spec.push_host}"
       end
@@ -178,10 +179,10 @@ module Rake
         out, ret = sh(*cmd, **kwargs, &block)
 
         if ret != 0
-          raise <<-EOS.gsub(/^\s*\.?/, '')
+          raise <<~ERROR
             Running `#{cmd}` failed, exit code: #{ret}
-            .#{out.gsub(/\n/, "\n  ")}
-          EOS
+              #{out.strip.gsub(/\n/, "\n  ")}
+          ERROR
         end
 
         [out, ret]
@@ -205,17 +206,15 @@ module Rake
         def load_all(dir = pwd)
           specs = Spec.scan dir.join('**/*.gemspec')
 
-          if specs.size > 1
-            specs.each { |spec| spec.namespace = spec.name }
-          end
+          specs.each {|spec| spec.namespace = spec.name } if specs.size > 1
 
           specs.each(&Proc.new) if block_given?
 
-          if specs.uniq { |s| s.namespace.to_s.strip }.size != specs.size
+          if specs.uniq {|s| s.namespace.to_s.strip }.size != specs.size
             raise 'Non distinct release task namespaces'
           end
 
-          specs.each { |spec| Task.new spec }
+          specs.each {|spec| Task.new spec }
         end
 
         def pwd
