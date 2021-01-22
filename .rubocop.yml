@@ -1,5 +1,7 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  NewCops: enable
+  SuggestExtensions: false
+  TargetRubyVersion: 2.5
 
 
 Layout/ArgumentAlignment:
@@ -31,6 +33,9 @@ Metrics/AbcSize:
 Metrics/ClassLength:
   Enabled: false
 
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
 Metrics/MethodLength:
   Enabled: false
 
@@ -39,6 +44,9 @@ Style/ClassAndModuleChildren:
   Enabled: false
 
 Style/Documentation:
+  Enabled: false
+
+Style/IfUnlessModifier:
   Enabled: false
 
 Style/HashEachMethods:

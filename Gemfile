@@ -6,4 +6,4 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'rubocop', '~> 0.85.0'
+gem 'rubocop', '~> 1.8.0'

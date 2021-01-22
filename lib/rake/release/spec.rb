@@ -13,14 +13,9 @@ module Rake
       delegate name: :@gemspec
       delegate version: :@gemspec
 
-      attr_reader :base
-      attr_reader :gemspec
-      attr_reader :gemspec_path
-      attr_reader :push_host
+      attr_reader :base, :gemspec, :gemspec_path, :push_host
 
-      attr_accessor :sign_tag
-      attr_accessor :namespace
-      attr_accessor :version_tag
+      attr_accessor :sign_tag, :namespace, :version_tag
 
       def initialize(path = nil, namespace: nil, sign_tag: false)
         path = Task.pwd.join(path.to_s).expand_path
