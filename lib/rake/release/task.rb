@@ -203,12 +203,12 @@ module Rake
       end
 
       class << self
-        def load_all(dir = pwd)
+        def load_all(dir = pwd, &block)
           specs = Spec.scan dir.join('**/*.gemspec')
 
           specs.each {|spec| spec.namespace = spec.name } if specs.size > 1
 
-          specs.each(&Proc.new) if block_given?
+          specs.each(&block) if block
 
           if specs.uniq {|s| s.namespace.to_s.strip }.size != specs.size
             raise 'Non distinct release task namespaces'
