@@ -6,4 +6,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'rubocop', '~> 1.26.0'
+
+gem 'rubocop-config', github: 'jgraichen/rubocop-config', ref: 'v7'
