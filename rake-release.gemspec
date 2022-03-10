@@ -11,6 +11,8 @@ Gem::Specification.new do |spec|
   spec.description   = 'Configurable fork of bundlers release tasks.'
   spec.homepage      = 'https://github.com/jgraichen/rake-release'
 
+  spec.metadata['rubygems_mfa_required'] = 'true'
+
   spec.files         = `git ls-files -z`.split("\x0").reject {|f| f.match(%r{^(test|spec|features)/}) }
   spec.executables   = spec.files.grep(%r{^bin/}) {|f| File.basename(f) }
   spec.require_paths = %w[lib]

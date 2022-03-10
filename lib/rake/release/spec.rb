@@ -84,7 +84,7 @@ module Rake
           Pathname
             .glob(path)
             .map {|m| Rake::Release::Spec.load(m) }
-            .reject(&:nil?)
+            .compact
         end
       end
     end

@@ -113,7 +113,7 @@ module Rake
       end
 
       def git_clean
-        clean? && committed? ||
+        (clean? && committed?) ||
           raise('There are files that need to be committed first.')
       end
 
@@ -151,7 +151,7 @@ module Rake
       def already_tagged?
         out, = sh 'git', 'tag'
 
-        return false unless out.split(/\n/).include? @spec.version_tag
+        return false unless out.split("\n").include? @spec.version_tag
 
         Task.ui.confirm "Tag #{@spec.version_tag} has already been created."
 
