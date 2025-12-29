@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = 'rake-release'
-  spec.version       = '1.3.0'
+  spec.version       = '1.4.0'
   spec.authors       = ['Jan Graichen']
   spec.email         = ['jgraichen@altimos.de']
   spec.licenses      = ['MIT']
@@ -19,7 +19,5 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.5'
 
-  spec.add_dependency 'bundler', '>= 1.11', '< 3'
-
-  spec.add_development_dependency 'bundler', '>= 1.11', '< 3'
+  spec.add_dependency 'bundler', '>= 1.11', '< 5'
 end
