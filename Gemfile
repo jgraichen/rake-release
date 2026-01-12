@@ -7,4 +7,4 @@ gemspec
 
 gem 'rake'
 
-gem 'rubocop-config', github: 'jgraichen/rubocop-config', ref: '129cb1338637f7a32f0ee84edf0cd23da9d1e0db'
+gem 'rubocop-config', github: 'jgraichen/rubocop-config', ref: 'c4adeb0c1c078b7042462ee1825b718f864f4019'
